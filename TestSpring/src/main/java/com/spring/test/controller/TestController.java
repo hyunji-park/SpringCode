@@ -14,6 +14,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.spring.test.service.ITestService;
 
+/**
+ * commit test
+ * @author phj61
+ *
+ */
 @Controller
 public class TestController {
 	
