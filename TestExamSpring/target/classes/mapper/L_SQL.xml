@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="exam">
+	<select id="getM" parameterType="hashmap" resultType="hashmap">
+		SELECT M_NO, M_NM
+		FROM M
+		WHERE M_ID = #{mId}
+		AND M_PW = #{mPw}
+	</select>
+	
+	<insert id="writeOb" parameterType="hashmap">
+		INSERT INTO OB(OB_NO, M_NO, OB_CON)
+		VALUES(OB_SEQ.NEXTVAL, #{mNo}, #{obCon})
+	</insert>
+	
+	<select id="getObCnt" parameterType="hashmap" resultType="Integer">
+		SELECT COUNT(*) AS CNT
+		FROM OB O INNER JOIN M M
+		                  ON O.M_NO = M.M_NO
+		WHERE O.OB_DEL = 1
+		<if test="searchTxt != null and searchTxt != ''">
+			<choose>
+				<when test="searchGbn == 0">
+					AND M.M_NM LIKE '%' || #{searchTxt} || '%'
+				</when>
+				<when test="searchGbn == 1">
+					AND O.OB_CON LIKE '%' || #{searchTxt} || '%'
+				</when>
+			</choose>
+		</if>
+	</select>
+	
+	<select id="getObList" parameterType="hashmap" resultType="hashmap">
+		SELECT O.OB_NO, O.OB_CON, O.M_NO, O.M_NM
+		FROM (  SELECT O.OB_NO, O.OB_CON, M.M_NO, M.M_NM,
+		               ROW_NUMBER() OVER(ORDER BY O.OB_NO DESC) AS RNUM
+		        FROM OB O INNER JOIN M M
+		                          ON O.M_NO = M.M_NO
+		        WHERE O.OB_DEL = 1
+		        <if test="searchTxt != null and searchTxt != ''">
+					<choose>
+						<when test="searchGbn == 0">
+							AND M.M_NM LIKE '%' || #{searchTxt} || '%'
+						</when>
+						<when test="searchGbn == 1">
+							AND O.OB_CON LIKE '%' || #{searchTxt} || '%'
+						</when>
+					</choose>
+				</if>
+		     ) O
+		WHERE O.RNUM BETWEEN #{startCnt} AND #{endCnt}
+	</select>
+	
+	<update id="updateOb" parameterType="hashmap">
+		UPDATE OB SET OB_CON = #{obCon}
+		WHERE OB_NO = #{obNo}
+		AND M_NO = #{mNo}
+	</update>
+	
+	<update id="deleteOb" parameterType="hashmap">
+		UPDATE OB SET OB_DEL = 0
+		WHERE OB_NO = #{obNo}
+		AND M_NO = #{mNo}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
